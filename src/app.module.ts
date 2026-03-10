@@ -5,15 +5,13 @@ import { AdminModule } from './admin/admin.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
     RouterModule.register([
       {
-        path: '/admin',
+        path: 'api/v1/admin',
         module: AdminModule,
       },
     ]),
@@ -32,9 +30,6 @@ import { DatabaseModule } from './database/database.module';
         };
       },
       inject: [ConfigService],
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../', 'public'),
     }),
     DatabaseModule,
     AuthModule,

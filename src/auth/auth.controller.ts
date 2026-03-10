@@ -14,7 +14,7 @@ import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
-import type { LoginDto } from './dto/login.dto';
+import { LoginDto } from './dto/login.dto';
 import type { AuthUser } from './auth.interface';
 
 const REFRESH_COOKIE = 'refresh_token';

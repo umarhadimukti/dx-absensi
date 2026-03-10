@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { VersioningType } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { cors } from './constants/api';
 import { ConfigService } from '@nestjs/config';
@@ -14,9 +14,18 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  app.useGlobalInterceptors(new TransformInterceptor())
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      stopAtFirstError: true,
+    }),
+  );
 
   app.enableVersioning({ type: VersioningType.URI });
+
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   app.enableCors({
     origin: cors.ORIGINS,
