@@ -5,6 +5,7 @@ import { Logger } from 'nestjs-pino';
 import { cors } from './constants/api';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -12,6 +13,8 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   app.use(cookieParser());
+
+  app.useGlobalInterceptors(new TransformInterceptor())
 
   app.enableVersioning({ type: VersioningType.URI });
 

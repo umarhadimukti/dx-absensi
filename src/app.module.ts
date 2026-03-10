@@ -17,7 +17,7 @@ import { DatabaseModule } from './database/database.module';
         module: AdminModule,
       },
     ]),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.local' }),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {

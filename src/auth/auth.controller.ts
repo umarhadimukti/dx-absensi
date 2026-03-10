@@ -20,7 +20,7 @@ import type { AuthUser } from './auth.interface';
 const REFRESH_COOKIE = 'refresh_token';
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-@Controller({ path: 'auth', version: '1' })
+@Controller({ path: 'auth' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
