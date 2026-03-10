@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model users {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  password   String
+  role       Role      @default(KARYAWAN)
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  pegawai    dexa_pegawai?
+}
+
+enum Role {
+  ADMIN
+  HR
+  KARYAWAN
+}
+
+// Master Pegawai
+model dexa_pegawai {
+  id            Int       @id @default(autoincrement())
+  user_id       Int       @unique
+  nip           String    @unique
+  nama          String
+  departemen    String?
+  jabatan       String?
+  no_telepon    String?
+  alamat        String?
+  tanggal_masuk DateTime?
+  is_aktif      Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  user          users                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  shifts        dexa_shift_pegawai[]
+  presensi      dexa_presensi_pegawai[]
+  cuti          dexa_cuti_pegawai[]
+}
+
+// Master Shift
+model dexa_master_shifts {
+  id           Int       @id @default(autoincrement())
+  nama_shift   String    @unique
+  jam_masuk    String    // format "HH:mm"
+  jam_keluar   String    // format "HH:mm"
+  toleransi    Int       @default(15) // menit toleransi keterlambatan
+  is_aktif     Boolean   @default(true)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  shift_pegawai dexa_shift_pegawai[]
+}
+
+// Penugasan Shift Pegawai
+model dexa_shift_pegawai {
+  id             Int       @id @default(autoincrement())
+  pegawai_id     Int
+  shift_id       Int
+  berlaku_dari   DateTime
+  berlaku_sampai DateTime?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  pegawai        dexa_pegawai       @relation(fields: [pegawai_id], references: [id], onDelete: Cascade)
+  shift          dexa_master_shifts @relation(fields: [shift_id], references: [id])
+
+  @@index([pegawai_id])
+  @@index([shift_id])
+}
+
+// Presensi / Absensi Pegawai
+model dexa_presensi_pegawai {
+  id              Int            @id @default(autoincrement())
+  pegawai_id      Int
+  tanggal         DateTime       @db.Date
+  jam_masuk       DateTime?
+  jam_keluar      DateTime?
+  status          StatusPresensi @default(HADIR)
+  lokasi_masuk    String?        // alamat WFH check-in
+  lokasi_keluar   String?
+  foto_masuk      String?        // path / URL foto selfie
+  foto_keluar     String?
+  keterangan      String?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  pegawai         dexa_pegawai   @relation(fields: [pegawai_id], references: [id], onDelete: Cascade)
+
+  @@unique([pegawai_id, tanggal])
+  @@index([tanggal])
+}
+
+enum StatusPresensi {
+  HADIR
+  TERLAMBAT
+  IZIN
+  SAKIT
+  ALPHA
+  CUTI
+}
+
+// Pengajuan Cuti Pegawai
+model dexa_cuti_pegawai {
+  id              Int         @id @default(autoincrement())
+  pegawai_id      Int
+  jenis_cuti      JenisCuti
+  tanggal_dari    DateTime    @db.Date
+  tanggal_sampai  DateTime    @db.Date
+  jumlah_hari     Int
+  alasan          String?
+  status          StatusCuti  @default(MENUNGGU)
+  disetujui_oleh  Int?        // user_id approver
+  catatan_hr      String?
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  pegawai         dexa_pegawai @relation(fields: [pegawai_id], references: [id], onDelete: Cascade)
+
+  @@index([pegawai_id])
+  @@index([tanggal_dari, tanggal_sampai])
+}
+
+enum JenisCuti {
+  TAHUNAN
+  SAKIT
+  MELAHIRKAN
+  DUKA
+  PENTING
+  LAINNYA
+}
+
+enum StatusCuti {
+  MENUNGGU
+  DISETUJUI
+  DITOLAK
+  DIBATALKAN
+}
