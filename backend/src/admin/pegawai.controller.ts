@@ -16,6 +16,7 @@ import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreatePegawaiDto } from './dto/create-pegawai.dto';
 import { UpdatePegawaiDto } from './dto/update-pegawai.dto';
+import { AssignShiftPegawaiDto } from './dto/assign-shift-pegawai.dto';
 
 @Controller('pegawai')
 @UseGuards(JwtAuthGuard)
@@ -50,5 +51,15 @@ export class PegawaiController {
   @HttpCode(HttpStatus.OK)
   deletePegawai(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.deletePegawai(id);
+  }
+
+  @Get(':id/shift')
+  getShiftPegawai(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.getShiftPegawai(id);
+  }
+
+  @Post(':id/assign-shift')
+  assignShiftPegawai(@Param('id', ParseIntPipe) id: number, @Body() dto: AssignShiftPegawaiDto) {
+    return this.adminService.assignShiftPegawai(id, dto);
   }
 }

@@ -128,4 +128,57 @@ export class AdminRepository {
   deletePegawai(userId: number) {
     return this.prisma.db.users.delete({ where: { id: userId } })
   }
+
+  findShiftPegawai(pegawaiId: number) {
+    return this.prisma.db.dexa_shift_pegawai.findMany({
+      where: { pegawai_id: pegawaiId },
+      select: {
+        id: true,
+        berlaku_dari: true,
+        berlaku_sampai: true,
+        created_at: true,
+        shift: {
+          select: { id: true, nama_shift: true, jam_masuk: true, jam_keluar: true, toleransi: true },
+        },
+      },
+      orderBy: { berlaku_dari: 'desc' },
+    });
+  }
+
+  findActiveShiftPegawai(pegawaiId: number) {
+    return this.prisma.db.dexa_shift_pegawai.findFirst({
+      where: { pegawai_id: pegawaiId, berlaku_sampai: null },
+      orderBy: { berlaku_dari: 'desc' },
+    });
+  }
+
+  closeShiftPegawai(id: number, berlaku_sampai: Date) {
+    return this.prisma.db.dexa_shift_pegawai.update({
+      where: { id },
+      data: { berlaku_sampai },
+    });
+  }
+
+  createShiftPegawai(pegawaiId: number, shiftId: number, berlakuDari: Date, berlakuSampai?: Date) {
+    return this.prisma.db.dexa_shift_pegawai.create({
+      data: {
+        pegawai_id: pegawaiId,
+        shift_id: shiftId,
+        berlaku_dari: berlakuDari,
+        berlaku_sampai: berlakuSampai,
+      },
+      select: {
+        id: true,
+        berlaku_dari: true,
+        berlaku_sampai: true,
+        created_at: true,
+        pegawai: {
+          select: { id: true, nip: true, nama: true },
+        },
+        shift: {
+          select: { id: true, nama_shift: true, jam_masuk: true, jam_keluar: true, toleransi: true },
+        },
+      },
+    });
+  }
 }
