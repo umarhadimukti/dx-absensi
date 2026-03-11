@@ -10,20 +10,21 @@ import {
   Patch,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreatePegawaiDto } from './dto/create-pegawai.dto';
 import { UpdatePegawaiDto } from './dto/update-pegawai.dto';
 import { AssignShiftPegawaiDto } from './dto/assign-shift-pegawai.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'generated/prisma/enums';
 
+@Roles(Role.ADMIN)
 @Controller('pegawai')
-@UseGuards(JwtAuthGuard)
 export class PegawaiController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get()
+  @Roles(Role.ADMIN, Role.HR)
   getPegawai(
     @Query('page') page = '1',
     @Query('limit') limit = '10',
@@ -33,6 +34,7 @@ export class PegawaiController {
   }
 
   @Get(':id')
+  @Roles(Role.ADMIN, Role.HR)
   getPegawaiById(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.getPegawaiById(id);
   }
@@ -54,11 +56,13 @@ export class PegawaiController {
   }
 
   @Get(':id/shift')
+  @Roles(Role.ADMIN, Role.HR)
   getShiftPegawai(@Param('id', ParseIntPipe) id: number) {
     return this.adminService.getShiftPegawai(id);
   }
 
   @Post(':id/assign-shift')
+  @Roles(Role.ADMIN, Role.HR)
   assignShiftPegawai(@Param('id', ParseIntPipe) id: number, @Body() dto: AssignShiftPegawaiDto) {
     return this.adminService.assignShiftPegawai(id, dto);
   }

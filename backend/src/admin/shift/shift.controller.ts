@@ -1,11 +1,12 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
 import { ShiftService } from './shift.service';
 import { CreateShiftDto } from './dto/create-shift.dto';
 import { UpdateShiftDto } from './dto/update-shift.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'generated/prisma/enums';
 
+@Roles(Role.ADMIN)
 @Controller('shift')
-@UseGuards(JwtAuthGuard)
 export class ShiftController {
   constructor(private readonly shiftService: ShiftService) {}
 

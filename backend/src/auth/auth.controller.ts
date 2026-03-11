@@ -12,10 +12,10 @@ import {
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LoginDto } from './dto/login.dto';
 import type { AuthUser } from './auth.interface';
+import { Public } from 'src/common/decorators/public.decorator';
 
 const REFRESH_COOKIE = 'refresh_token';
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -24,6 +24,7 @@ const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
@@ -42,6 +43,7 @@ export class AuthController {
     return { accessToken: result.accessToken, user: result.user };
   }
 
+  @Public()
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshGuard)
@@ -51,14 +53,12 @@ export class AuthController {
 
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JwtAuthGuard)
   logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie(REFRESH_COOKIE);
     return { message: 'Logged out successfully' };
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   me(@Req() req: Request) {
     return this.authService.getMe((req.user as AuthUser).userId);
   }
