@@ -3,6 +3,8 @@ import { PresensiPegawaiRepository } from './presensi-pegawai.repository';
 import type { PresensiMasukDto } from './dto/presensi-masuk.dto';
 import type { PresensiKeluarDto } from './dto/presensi-keluar.dto';
 import { PresensiPegawaiConstant } from './presensi-pegawai.constant';
+import { WIB_OFFSET_MS, wibToday } from 'src/common/utils/datetime';
+import { StatusPresensi } from 'generated/prisma/enums';
 
 @Injectable()
 export class PresensiPegawaiService {
@@ -12,7 +14,7 @@ export class PresensiPegawaiService {
     const pegawai = await this.repo.findPegawaiByUserId(userId);
     if (!pegawai) throw new NotFoundException(PresensiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
 
-    const today = this.getToday();
+    const today = wibToday();
 
     const existing = await this.repo.findPresensiByPegawaiAndDate(pegawai.id, today);
     if (existing) throw new ConflictException(PresensiPegawaiConstant.ERR_SUDAH_PRESENSI_MASUK);
@@ -35,7 +37,7 @@ export class PresensiPegawaiService {
     const pegawai = await this.repo.findPegawaiByUserId(userId);
     if (!pegawai) throw new NotFoundException(PresensiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
 
-    const today = this.getToday();
+    const today = wibToday();
 
     const presensi = await this.repo.findPresensiByPegawaiAndDate(pegawai.id, today);
     if (!presensi) throw new BadRequestException(PresensiPegawaiConstant.ERR_BELUM_PRESENSI_MASUK);
@@ -48,19 +50,16 @@ export class PresensiPegawaiService {
     });
   }
 
-  private getToday(): Date {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  }
-
   private async determineStatus(pegawaiId: number, tanggal: Date, waktuMasuk: Date): Promise<'HADIR' | 'TERLAMBAT'> {
     const shiftPegawai = await this.repo.findActiveShiftForDate(pegawaiId, tanggal);
-    if (!shiftPegawai) return 'HADIR';
+    if (!shiftPegawai) return StatusPresensi.HADIR;
 
     const [jam, menit] = shiftPegawai.shift.jam_masuk.split(':').map(Number);
-    const batasWaktu = new Date(tanggal);
-    batasWaktu.setHours(jam, menit + shiftPegawai.shift.toleransi, 0, 0);
 
-    return waktuMasuk > batasWaktu ? 'TERLAMBAT' : 'HADIR';
+    const batasMs = tanggal.getTime() + (jam * 60 + menit + shiftPegawai.shift.toleransi) * 60000;
+
+    const waktuMasukWibMs = waktuMasuk.getTime() + WIB_OFFSET_MS;
+
+    return waktuMasukWibMs > batasMs ? StatusPresensi.TERLAMBAT : StatusPresensi.HADIR;
   }
 }
