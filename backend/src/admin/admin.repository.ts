@@ -42,7 +42,7 @@ export class AdminRepository {
       take,
       where,
       select: PEGAWAI_SELECT,
-      orderBy: { created_at: 'desc' },
+      orderBy: { nama: 'asc' },
     });
   }
 
@@ -125,7 +125,7 @@ export class AdminRepository {
   }
 
   // Delete user -> cascade ke pegawai
-  async deletePegawai(userId: number) {
+  deletePegawai(userId: number) {
     return this.prisma.db.users.delete({ where: { id: userId } })
   }
 }

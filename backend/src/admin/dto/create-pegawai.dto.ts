@@ -14,7 +14,7 @@ export class CreatePegawaiDto {
   @IsNotEmpty({ message: 'Email wajib diisi' })
   email: string;
 
-  @IsString()
+  @IsString({ message: 'Password harus berupa string' })
   @MinLength(8, { message: 'Password minimal 8 karakter' })
   password: string;
 

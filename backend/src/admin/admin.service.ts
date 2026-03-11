@@ -11,11 +11,11 @@ export class AdminService {
 
   async getPegawai(page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
-    const [data, total] = await Promise.all([
+    const [data, total_data] = await Promise.all([
       this.repo.findPegawai(skip, limit, search),
       this.repo.countPegawai(search),
     ]);
-    return { data, pagination: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    return { data, pagination: { page, limit, total_data, total_page: Math.ceil(total_data / limit) } };
   }
 
   async getPegawaiById(id: number) {
