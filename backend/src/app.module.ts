@@ -8,14 +8,16 @@ import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './database/database.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { PresensiPegawaiModule } from './presensi-pegawai/presensi-pegawai.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { GroupingAPI } from './constants/api';
 
 @Module({
   imports: [
     RouterModule.register([
-      {
-        path: 'api/v1/admin',
-        module: AdminModule,
-      },
+      GroupingAPI('api/v1/admin', AdminModule),
+      GroupingAPI('api/v1/pegawai', PresensiPegawaiModule),
     ]),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.local' }),
     LoggerModule.forRootAsync({
@@ -33,9 +35,15 @@ import { RolesGuard } from './common/guards/roles.guard';
       },
       inject: [ConfigService],
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+      serveStaticOptions: { index: false },
+    }),
     DatabaseModule,
     AuthModule,
     AdminModule,
+    PresensiPegawaiModule,
   ],
   controllers: [AppController],
   providers: [
