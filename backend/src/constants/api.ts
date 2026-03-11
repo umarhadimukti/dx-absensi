@@ -1,7 +1,7 @@
 import { Type } from "@nestjs/common";
 
 export const cors = {
-  ORIGINS: ['localhost:5173', 'localhost:3006'],
+  ORIGINS: ['http://localhost:5173', 'http://localhost:3006'],
   METHODS: ['GET', 'POST', 'PUT', 'DELETE'],
 };
 

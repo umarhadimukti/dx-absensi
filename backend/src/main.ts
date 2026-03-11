@@ -30,6 +30,7 @@ async function bootstrap() {
   app.enableCors({
     origin: cors.ORIGINS,
     methods: cors.METHODS,
+    credentials: true,
   });
 
   const configService = app.get<ConfigService>(ConfigService);
