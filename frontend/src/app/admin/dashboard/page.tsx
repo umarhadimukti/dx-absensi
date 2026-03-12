@@ -3,23 +3,29 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ClipboardList } from 'lucide-react';
-import { PegawaiTable } from '@/components/admin/pegawai/PegawaiTable';
-import { CreatePegawaiModal } from '@/components/admin/pegawai/CreatePegawaiModal';
-import { EditPegawaiModal } from '@/components/admin/pegawai/EditPegawaiModal';
-import { DeletePegawaiModal } from '@/components/admin/pegawai/DeletePegawaiModal';
-import type { Pegawai } from '@/types/pegawai';
+import Pegawai from '../../../components/admin/pegawai/Pegawai';
+import Shift from '@/components/admin/shift/Shift';
 
 export default function AdminDashboardPage() {
-  const [showCreate, setShowCreate] = useState(false);
-  const [editTarget, setEditTarget] = useState<Pegawai | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Pegawai | null>(null);
+  const [activeTab, setActiveTab] = useState<'pegawai'| 'shift'>('pegawai');
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
       <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-gray-900">Pegawai</h1>
-          <p className="mt-1 text-sm text-gray-500">Kelola data pegawai perusahaan</p>
+        <div className="flex items-center rounded-lg border border-gray-200 bg-gray-100 p-1 gap-1">
+          {(['pegawai', 'shift'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`rounded-md px-6 py-1.5 text-sm font-medium transition-all cursor-pointer capitalize ${
+                activeTab === tab
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
         <Link
           href="/presensi"
@@ -30,25 +36,13 @@ export default function AdminDashboardPage() {
         </Link>
       </div>
 
-      <PegawaiTable
-        onAdd={() => setShowCreate(true)}
-        onEdit={(p) => setEditTarget(p)}
-        onDelete={(p) => setDeleteTarget(p)}
-      />
-      <CreatePegawaiModal
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-      />
-      <EditPegawaiModal
-        open={!!editTarget}
-        pegawai={editTarget}
-        onClose={() => setEditTarget(null)}
-      />
-      <DeletePegawaiModal
-        open={!!deleteTarget}
-        pegawai={deleteTarget}
-        onClose={() => setDeleteTarget(null)}
-      />
+      {activeTab === 'pegawai' && (
+        <Pegawai/>
+      )}
+
+      {activeTab === 'shift' && (
+        <Shift/>
+      )}
 
     </main>
   );

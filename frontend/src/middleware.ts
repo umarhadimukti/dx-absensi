@@ -7,7 +7,7 @@ const ROLE_REDIRECT: Record<string, string> = {
 };
 
 const PROTECTED: Record<string, string[]> = {
-  '/admin': ['ADMIN'],
+  '/admin': ['ADMIN', 'HR'],
   '/presensi': ['ADMIN', 'HR', 'KARYAWAN'],
 };
 

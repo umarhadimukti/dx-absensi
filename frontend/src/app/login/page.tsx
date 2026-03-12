@@ -31,6 +31,7 @@ export default function LoginPage() {
 
       const roleRedirect: Record<string, string> = {
         ADMIN: '/admin/dashboard',
+        HR: '/admin/dashboard',
         KARYAWAN: '/presensi'
       };
       router.push(roleRedirect[user.role] ?? '/');

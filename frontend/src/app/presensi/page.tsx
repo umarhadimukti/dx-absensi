@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Clock, LogIn, LogOut, AlarmClock } from 'lucide-react';
+import Link from 'next/link';
+import { Clock, LogIn, LogOut, AlarmClock, ChevronRight, LayoutDashboard } from 'lucide-react';
 import { getTodayStatus } from '@/lib/presensi-api';
 import { useAuth } from '@/hooks/useAuth';
 import { PresensiModal } from '@/components/presensi/PresensiModal';
@@ -55,6 +56,17 @@ export default function PresensiPage() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
+      {authData && ['ADMIN', 'HR'].includes(authData.data.role) && (
+        <nav className="mb-5 flex items-center gap-1.5 text-sm text-gray-500">
+          <Link href="/admin/dashboard" className="flex items-center gap-1 hover:text-sky-600 transition-colors">
+            <LayoutDashboard size={14} />
+            Dashboard
+          </Link>
+          <ChevronRight size={13} className="text-gray-300" />
+          <span className="text-gray-900 font-medium">Presensi</span>
+        </nav>
+      )}
+
       <div className="mb-6">
         <h1 className="text-lg font-semibold text-gray-900">Presensi</h1>
         <p className="mt-1 text-sm text-gray-500">{formatDate(new Date().toISOString())}</p>
