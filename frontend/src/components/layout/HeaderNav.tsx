@@ -20,7 +20,11 @@ export function HeaderNav() {
   }, []);
 
   async function handleLogout() {
-    await apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});
+    const token = localStorage.getItem('access_token');
+    await apiFetch('/auth/logout', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }).catch(() => {});
     document.cookie = 'access_token=; path=/; max-age=0';
     localStorage.removeItem('access_token');
 

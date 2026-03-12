@@ -12,8 +12,9 @@ export async function apiFetch<T>(
 ): Promise<ApiResponse<T>> {
   const res = await fetch(`${API_BASE}${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
+    // headers setelah ...init agar Content-Type tidak ter-override oleh init.headers
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
   });
 
   const json = await res.json();
@@ -23,4 +24,10 @@ export async function apiFetch<T>(
   }
 
   return json as ApiResponse<T>;
+}
+
+export function getAuthHeaders(): HeadersInit {
+  if (typeof window === 'undefined') return {};
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
