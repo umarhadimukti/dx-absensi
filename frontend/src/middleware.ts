@@ -8,7 +8,7 @@ const ROLE_REDIRECT: Record<string, string> = {
 
 const PROTECTED: Record<string, string[]> = {
   '/admin': ['ADMIN'],
-  '/presensi': ['KARYAWAN'],
+  '/presensi': ['ADMIN', 'HR', 'KARYAWAN'],
 };
 
 function decodeJwt(token: string): { role?: string; exp?: number } | null {

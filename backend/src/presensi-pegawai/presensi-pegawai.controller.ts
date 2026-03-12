@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -19,6 +20,12 @@ import { UsePresensiUpload } from 'src/common/decorators/upload-presensi.decorat
 @Controller('presensi-pegawai')
 export class PresensiPegawaiController {
   constructor(private readonly presensiService: PresensiPegawaiService) {}
+
+  @Get('today')
+  @HttpCode(HttpStatus.OK)
+  getTodayStatus(@GetUser() user: AuthUser) {
+    return this.presensiService.getTodayStatus(user.userId);
+  }
 
   @Post('masuk')
   @HttpCode(HttpStatus.CREATED)

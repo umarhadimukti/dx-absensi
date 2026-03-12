@@ -33,7 +33,8 @@ export function PegawaiTable({ onAdd, onEdit, onDelete }: Props) {
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['pegawai', page, debouncedSearch],
-    queryFn: () => getPegawaiList(page, 10, debouncedSearch || undefined),
+    queryFn: () => getPegawaiList(page, 5, debouncedSearch || undefined),
+    staleTime: 1000 * 60 * 5,
   });
 
   const list = data?.data.data ?? [];

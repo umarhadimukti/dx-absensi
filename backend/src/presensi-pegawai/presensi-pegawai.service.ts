@@ -10,6 +10,19 @@ import { StatusPresensi } from 'generated/prisma/enums';
 export class PresensiPegawaiService {
   constructor(private readonly repo: PresensiPegawaiRepository) {}
 
+  async getTodayStatus(userId: number) {
+    const pegawai = await this.repo.findPegawaiByUserId(userId);
+    if (!pegawai) throw new NotFoundException(PresensiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
+
+    const today = wibToday();
+    const [presensi, shiftPegawai] = await Promise.all([
+      this.repo.findPresensiByPegawaiAndDate(pegawai.id, today),
+      this.repo.findActiveShiftForDate(pegawai.id, today),
+    ]);
+
+    return { presensi: presensi ?? null, shift: shiftPegawai?.shift ?? null };
+  }
+
   async presensiMasuk(userId: number, file: Express.Multer.File, dto: PresensiMasukDto) {
     const pegawai = await this.repo.findPegawaiByUserId(userId);
     if (!pegawai) throw new NotFoundException(PresensiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
