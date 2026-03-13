@@ -24,3 +24,37 @@ export interface TodayStatusData {
   presensi: PresensiData | null;
   shift: ShiftData | null;
 }
+
+export type PresensiStatus = 'HADIR' | 'TERLAMBAT' | 'IZIN' | 'SAKIT' | 'ALPHA' | 'CUTI';
+
+export interface RiwayatPresensiItem {
+  id: number;
+  tanggal: string;
+  jam_masuk: string | null;
+  jam_keluar: string | null;
+  status: PresensiStatus;
+  lokasi_masuk: string | null;
+  lokasi_keluar: string | null;
+  foto_masuk: string | null;
+  foto_keluar: string | null;
+  keterangan: string | null;
+  pegawai: {
+    id: number;
+    nip: string;
+    nama: string;
+    departemen: string | null;
+    user: { email: string };
+  };
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RiwayatPresensiData {
+  data: RiwayatPresensiItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total_data: number;
+    total_page: number;
+  };
+}

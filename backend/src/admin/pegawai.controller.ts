@@ -17,6 +17,7 @@ import { UpdatePegawaiDto } from './dto/update-pegawai.dto';
 import { AssignShiftPegawaiDto } from './dto/assign-shift-pegawai.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'generated/prisma/enums';
+import { GetRiwayatPresensiDto } from './dto/get-riwayat-presensi.dto';
 
 @Roles(Role.ADMIN)
 @Controller('pegawai')
@@ -31,6 +32,12 @@ export class PegawaiController {
     @Query('search') search?: string,
   ) {
     return this.adminService.getPegawai(Number(page), Number(limit), search);
+  }
+
+  @Get('riwayat-presensi')
+  @Roles(Role.ADMIN, Role.HR)
+  getRiwayatPresensi(@Query() dto: GetRiwayatPresensiDto) {
+    return this.adminService.getRiwayatPresensi(dto);
   }
 
   @Get(':id')

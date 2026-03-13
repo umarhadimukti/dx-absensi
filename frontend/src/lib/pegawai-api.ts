@@ -1,6 +1,7 @@
 import { apiFetch, getAuthHeaders } from './api';
 import type { CreatePegawaiPayload, PegawaiListData, UpdatePegawaiPayload } from '@/types/pegawai';
 import type { AssignShiftPayload, ShiftPegawai } from '@/types/shift';
+import type { RiwayatPresensiData } from '@/types/presensi';
 
 const BASE = '/api/v1/admin/pegawai';
 
@@ -41,6 +42,22 @@ export function assignShiftPegawai(pegawaiId: number, payload: AssignShiftPayloa
   return apiFetch<unknown>(`${BASE}/${pegawaiId}/assign-shift`, {
     method: 'POST',
     body: JSON.stringify(payload),
+    headers: getAuthHeaders(),
+  });
+}
+
+export function getRiwayatPresensiAdmin(params: {
+  tanggal_mulai?: string;
+  tanggal_selesai?: string;
+  page?: number;
+  limit?: number;
+}) {
+  const query = new URLSearchParams();
+  if (params.tanggal_mulai) query.set('tanggal_mulai', params.tanggal_mulai);
+  if (params.tanggal_selesai) query.set('tanggal_selesai', params.tanggal_selesai);
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  return apiFetch<RiwayatPresensiData>(`${BASE}/riwayat-presensi?${query}`, {
     headers: getAuthHeaders(),
   });
 }

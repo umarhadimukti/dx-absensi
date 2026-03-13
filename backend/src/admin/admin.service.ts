@@ -6,6 +6,7 @@ import type { CreatePegawaiDto } from './dto/create-pegawai.dto';
 import type { UpdatePegawaiDto } from './dto/update-pegawai.dto';
 import type { AssignShiftPegawaiDto } from './dto/assign-shift-pegawai.dto';
 import { AdminConstant } from './admin.constant';
+import { GetRiwayatPresensiDto } from './dto/get-riwayat-presensi.dto';
 
 @Injectable()
 export class AdminService {
@@ -95,5 +96,20 @@ export class AdminService {
     }
 
     return this.repo.createShiftPegawai(pegawaiId, dto.shift_id, berlakuDari, berlakuSampai);
+  }
+
+  async getRiwayatPresensi(dto: GetRiwayatPresensiDto) {
+    const tanggalMulai = dto.tanggal_mulai ? new Date(dto.tanggal_mulai) : undefined;
+    const tanggalSelesai = dto.tanggal_selesai ? new Date(dto.tanggal_selesai) : undefined;
+    const page = dto.page ?? 1;
+    const limit = dto.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const [data, total_data] = await Promise.all([
+      this.repo.getRiwayatPresensi(tanggalMulai, tanggalSelesai, skip, limit),
+      this.repo.countRiwayatPresensi(tanggalMulai, tanggalSelesai),
+    ]);
+
+    return { data, pagination: { page, limit, total_data, total_page: Math.ceil(total_data / limit) } };
   }
 }

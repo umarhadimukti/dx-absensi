@@ -20,6 +20,30 @@ const PEGAWAI_SELECT = {
   },
 };
 
+const PRESENSI_SELECT = {
+  id: true,
+  tanggal: true,
+  jam_masuk: true,
+  jam_keluar: true,
+  status: true,
+  lokasi_masuk: true,
+  lokasi_keluar: true,
+  foto_masuk: true,
+  foto_keluar: true,
+  keterangan: true,
+  pegawai: {
+    select: {
+      id: true,
+      nip: true,
+      nama: true,
+      departemen: true,
+      user: { select: { email: true } },
+    },
+  },
+  created_at: true,
+  updated_at: true,
+}
+
 @Injectable()
 export class AdminRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -177,6 +201,32 @@ export class AdminRepository {
         },
         shift: {
           select: { id: true, nama_shift: true, jam_masuk: true, jam_keluar: true, toleransi: true },
+        },
+      },
+    });
+  }
+
+  getRiwayatPresensi(tanggalMulai?: Date, tanggalSelesai?: Date, skip?: number, take?: number) {
+    return this.prisma.db.dexa_presensi_pegawai.findMany({
+      where: {
+        tanggal: {
+          ...(tanggalMulai && { gte: tanggalMulai }),
+          ...(tanggalSelesai && { lte: tanggalSelesai }),
+        },
+      },
+      select: PRESENSI_SELECT,
+      orderBy: [{ tanggal: 'desc' }, { pegawai: { nama: 'asc' } }],
+      skip,
+      take,
+    });
+  }
+
+  countRiwayatPresensi(tanggalMulai?: Date, tanggalSelesai?: Date) {
+    return this.prisma.db.dexa_presensi_pegawai.count({
+      where: {
+        tanggal: {
+          ...(tanggalMulai && { gte: tanggalMulai }),
+          ...(tanggalSelesai && { lte: tanggalSelesai }),
         },
       },
     });
