@@ -27,6 +27,13 @@ export class PresensiPegawaiRepository {
     return this.prisma.db.dexa_pegawai.findUnique({ where: { user_id: userId } });
   }
 
+  findPegawaiWithUserByUserId(userId: number) {
+    return this.prisma.db.dexa_pegawai.findUnique({
+      where: { user_id: userId },
+      include: { user: { select: { email: true } } },
+    });
+  }
+
   findPresensiByPegawaiAndDate(pegawaiId: number, tanggal: Date) {
     return this.prisma.db.dexa_presensi_pegawai.findUnique({
       where: { pegawai_id_tanggal: { pegawai_id: pegawaiId, tanggal } },

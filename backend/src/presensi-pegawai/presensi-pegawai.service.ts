@@ -1,5 +1,7 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import type { ClientProxy } from '@nestjs/microservices';
 import { PresensiPegawaiRepository } from './presensi-pegawai.repository';
+import { NOTIFICATION_SERVICE } from './presensi-pegawai.module';
 import type { PresensiMasukDto } from './dto/presensi-masuk.dto';
 import type { PresensiKeluarDto } from './dto/presensi-keluar.dto';
 import { PresensiPegawaiConstant } from './presensi-pegawai.constant';
@@ -8,7 +10,12 @@ import { StatusPresensi } from 'generated/prisma/enums';
 
 @Injectable()
 export class PresensiPegawaiService {
-  constructor(private readonly repo: PresensiPegawaiRepository) {}
+  private readonly logger = new Logger(PresensiPegawaiService.name);
+
+  constructor(
+    private readonly repo: PresensiPegawaiRepository,
+    @Inject(NOTIFICATION_SERVICE) private readonly notificationClient: ClientProxy,
+  ) {}
 
   async getTodayStatus(userId: number) {
     const pegawai = await this.repo.findPegawaiByUserId(userId);
@@ -24,7 +31,8 @@ export class PresensiPegawaiService {
   }
 
   async presensiMasuk(userId: number, file: Express.Multer.File, dto: PresensiMasukDto) {
-    const pegawai = await this.repo.findPegawaiByUserId(userId);
+    // Gunakan findPegawaiWithUserByUserId agar email tersedia untuk notifikasi
+    const pegawai = await this.repo.findPegawaiWithUserByUserId(userId);
     if (!pegawai) throw new NotFoundException(PresensiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
 
     const today = wibToday();
@@ -35,7 +43,7 @@ export class PresensiPegawaiService {
     const now = new Date();
     const status = await this.determineStatus(pegawai.id, today, now);
 
-    return this.repo.createPresensiMasuk({
+    const presensi = await this.repo.createPresensiMasuk({
       pegawai_id: pegawai.id,
       tanggal: today,
       jam_masuk: now,
@@ -44,6 +52,27 @@ export class PresensiPegawaiService {
       lokasi_masuk: dto.lokasi_masuk,
       keterangan: dto.keterangan,
     });
+
+    // Emit event ke notification-service (fire-and-forget — tidak memblokir response)
+    this.notificationClient
+      .emit('notification.check_in', {
+        nama: pegawai.nama,
+        nip: pegawai.nip,
+        email: pegawai.user.email,
+        jam_masuk: new Date(now.getTime() + WIB_OFFSET_MS).toLocaleTimeString('id-ID', {
+          hour: '2-digit', minute: '2-digit', timeZone: 'UTC',
+        }) + ' WIB',
+        tanggal: new Date(today.getTime()).toLocaleDateString('id-ID', {
+          day: '2-digit', month: 'long', year: 'numeric', timeZone: 'UTC',
+        }),
+        status,
+      })
+      .subscribe({
+        error: (err: unknown) =>
+          this.logger.warn(`Gagal emit notifikasi check in: ${(err as Error).message}`),
+      });
+
+    return presensi;
   }
 
   async presensiKeluar(userId: number, file: Express.Multer.File, dto: PresensiKeluarDto) {
