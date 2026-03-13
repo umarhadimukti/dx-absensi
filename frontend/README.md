@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend — Dexa Absensi
 
-## Getting Started
+Antarmuka web untuk sistem manajemen absensi karyawan, dibangun dengan Next.js 16 dan React 19.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router), React 19
+- **Styling:** Tailwind CSS 4, shadcn/ui (style: radix-nova), Radix UI
+- **Data Fetching:** TanStack React Query v5
+- **Font:** Geist
+- **Package manager:** pnpm
+
+## Prasyarat
+
+- Node.js >= 20
+- pnpm
+- Backend berjalan di port 3005 (lihat [backend/README.md](../backend/README.md))
+
+## Setup
+
+### 1. Install dependencies
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Konfigurasi environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Buat file `.env.local` di direktori `frontend/`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3005
+```
 
-## Learn More
+## Menjalankan Aplikasi
 
-To learn more about Next.js, take a look at the following resources:
+### Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Aplikasi berjalan di `http://localhost:3006`.
 
-## Deploy on Vercel
+### Production
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm run build
+pnpm run start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Linting
+
+```bash
+pnpm run lint
+```
+
+## Halaman
+
+| Route              | Akses      | Keterangan                                        |
+|--------------------|------------|---------------------------------------------------|
+| `/login`           | Public     | Form login                                        |
+| `/admin/dashboard` | ADMIN      | Manajemen pegawai, shift, dan riwayat presensi    |
+| `/presensi`        | Semua role | Clock in/out dengan kamera                        |
+
+## Arsitektur
+
+```
+src/
+├── app/                        # Next.js App Router
+│   ├── layout.tsx              # Root layout (Server Component)
+│   ├── login/                  # Halaman login
+│   ├── admin/dashboard/        # Dashboard admin
+│   └── presensi/               # Halaman presensi
+│
+├── components/
+│   ├── layout/                 # Header (Server) + HeaderNav (Client)
+│   ├── admin/
+│   │   ├── pegawai/            # CRUD pegawai + assign shift
+│   │   ├── shift/              # CRUD master shift
+│   │   └── presensi/           # Riwayat presensi + detail foto
+│   ├── presensi/               # Modal kamera presensi
+│   └── ui/                     # shadcn/ui components
+│
+├── lib/
+│   ├── api.ts                  # Base fetcher apiFetch<T>()
+│   ├── pegawai-api.ts          # Endpoint pegawai & presensi admin
+│   ├── shift-api.ts            # Endpoint master shift
+│   └── presensi-api.ts         # Endpoint presensi karyawan
+│
+├── hooks/
+│   └── useAuth.ts              # Query /auth/me, return null saat tidak login
+│
+├── providers/
+│   └── query-provider.tsx      # React Query setup
+│
+├── types/                      # TypeScript interfaces
+└── middleware.ts               # Edge Runtime: JWT validation + redirect
+```
+
+### Data Fetching
+
+Semua request ke backend melalui `apiFetch<T>(path, init?)` di `lib/api.ts`:
+- Otomatis menyisipkan `Authorization: Bearer <token>` dari localStorage
+- `credentials: 'include'` untuk cookie
+- Upload foto (masuk/keluar) menggunakan raw `fetch` dengan `FormData` karena `apiFetch` set `Content-Type: application/json`
+
+**Query keys yang digunakan:**
+
+| Query Key                      | Data                          |
+|--------------------------------|-------------------------------|
+| `['auth', 'me']`               | User yang sedang login        |
+| `['pegawai', page, search]`    | List karyawan                 |
+| `['shift']`                    | List master shift             |
+| `['shift-pegawai', id]`        | Riwayat shift satu karyawan   |
+| `['presensi', 'today']`        | Status presensi hari ini      |
+| `['riwayat-presensi', ...]`    | Riwayat presensi admin        |
+
+### Auth
+
+- JWT disimpan di **dua tempat** secara bersamaan:
+  - `localStorage` (`access_token`) — untuk header `Authorization` di API call
+  - `document.cookie` (`access_token`) — untuk validasi di Next.js middleware (Edge Runtime)
+- Setelah login: set keduanya, invalidate query `['auth', 'me']`
+- Setelah logout: panggil `/auth/logout`, set query data `['auth', 'me']` ke `null` untuk update UI langsung
+- Komponen yang membaca `localStorage` menggunakan pola `mounted` state untuk menghindari hydration mismatch
+
+### Middleware
+
+`src/middleware.ts` berjalan di Edge Runtime dan:
+- Membaca JWT dari cookie `access_token` (pure base64url, tanpa library)
+- `/login` + token valid → redirect ke dashboard sesuai role
+- `/admin/*` → wajib role ADMIN
+- `/presensi/*` → semua role yang terautentikasi
+
+### Timezone
+
+Timestamp dari backend sudah dalam WIB (UTC+7) yang disimpan seolah UTC. Saat menampilkan di frontend selalu gunakan `timeZone: 'UTC'`. Hanya gunakan `timeZone: 'Asia/Jakarta'` untuk waktu lokal dari `new Date()`.
+
+## Variabel Environment
+
+| Key                   | Default                 | Keterangan      |
+|-----------------------|-------------------------|-----------------|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:3005` | URL backend API |

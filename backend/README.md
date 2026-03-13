@@ -1,98 +1,198 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend — Dexa Absensi
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API untuk sistem manajemen absensi karyawan, dibangun dengan NestJS 11 dan Prisma 7.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Tech Stack
 
-## Description
+- **Framework:** NestJS 11, TypeScript 5.7
+- **ORM:** Prisma 7 + `@prisma/adapter-pg`
+- **Database:** PostgreSQL 16
+- **Auth:** JWT (access + refresh token), Passport.js, bcryptjs
+- **Logging:** nestjs-pino (pretty-printed di dev, JSON di production)
+- **Upload:** Multer 2
+- **Package manager:** pnpm
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prasyarat
 
-## Project setup
+- Node.js >= 20
+- pnpm
+- PostgreSQL (atau Docker)
+
+## Setup
+
+### 1. Install dependencies
 
 ```bash
-$ pnpm install
+pnpm install
 ```
 
-## Compile and run the project
+### 2. Konfigurasi environment
 
 ```bash
-# development
-$ pnpm run start
-
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+cp .env.local.example .env.local
 ```
 
-## Run tests
+Edit `.env.local`:
+
+```env
+APP_NAME=dexa-absensi
+APP_HOST=localhost
+APP_PORT=3005
+APP_ENV=development
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=password
+POSTGRES_DB=db-absensi
+POSTGRES_PORT=5435
+DATABASE_URL=postgresql://postgres:password@localhost:5435/db-absensi
+
+JWT_ACCESS_SECRET=your-access-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+JWT_ACCESS_EXPIRES_IN=15m
+JWT_REFRESH_EXPIRES_IN=7d
+```
+
+### 3. Jalankan migrasi dan seed
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+pnpm exec prisma migrate dev
+pnpm exec prisma db seed
 ```
 
-## Deployment
+## Menjalankan Aplikasi
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Development (dengan hot reload)
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+pnpm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Server berjalan di `http://localhost:3005`.
 
-## Resources
+### Production
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+pnpm run build
+pnpm run start:prod
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Docker (PostgreSQL + backend)
 
-## Support
+```bash
+# Dari direktori backend/
+pnpm run docker:dev    # Build dan jalankan semua service + tampilkan log
+pnpm run docker:down   # Hentikan semua service
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Prisma
 
-## Stay in touch
+```bash
+pnpm exec prisma migrate dev      # Buat dan jalankan migrasi baru
+pnpm exec prisma db seed          # Isi data awal
+pnpm exec prisma generate         # Regenerate client setelah ubah schema
+pnpm exec prisma studio           # Buka Prisma Studio (GUI)
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+> Prisma membaca `.env.local` via `prisma.config.ts`. Client di-generate ke `generated/prisma/`, bukan `node_modules/.prisma`.
 
-## License
+## Testing
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```bash
+pnpm run test                                           # Unit test
+pnpm run test:cov                                       # Unit test + coverage
+pnpm run test:e2e                                       # E2E test
+pnpm run test -- --testPathPattern=admin.controller     # Test file tertentu
+```
+
+## Linting
+
+```bash
+pnpm run lint    # ESLint dengan auto-fix
+```
+
+## Arsitektur
+
+```
+src/
+├── main.ts                         # Bootstrap: pino, versioning, ValidationPipe
+├── app.module.ts                   # Root module
+├── database/                       # PrismaService (global)
+├── common/
+│   ├── interceptors/               # TransformInterceptor — wrap semua response
+│   ├── utils/datetime.ts           # WIB helpers (wibToday, WIB_OFFSET_MS)
+│   └── jwt/                        # JwtUtil + JwtModule
+├── auth/                           # Autentikasi (local, jwt, jwt-refresh)
+├── admin/                          # Manajemen pegawai & shift
+│   └── shift/                      # Sub-module shift
+└── presensi-pegawai/               # Presensi karyawan (masuk/keluar/today)
+```
+
+### Response Format
+
+Semua response dibungkus oleh `TransformInterceptor`:
+
+```json
+{
+  "statusCode": 200,
+  "message": "Berhasil",
+  "data": { ... }
+}
+```
+
+## API Endpoints
+
+### Auth (`/auth`)
+
+| Method | Path             | Guard           | Keterangan           |
+|--------|------------------|-----------------|----------------------|
+| POST   | `/auth/login`    | LocalAuthGuard  | Login, dapat JWT     |
+| POST   | `/auth/refresh`  | JwtRefreshGuard | Refresh access token |
+| POST   | `/auth/logout`   | JwtAuthGuard    | Logout, hapus cookie |
+| GET    | `/auth/me`       | JwtAuthGuard    | Data user saat ini   |
+
+### Admin — Pegawai (`/api/v1/admin/pegawai`)
+
+| Method | Path                          | Role      | Keterangan                      |
+|--------|-------------------------------|-----------|---------------------------------|
+| GET    | `/pegawai`                    | ADMIN, HR | List pegawai (page, search)     |
+| GET    | `/pegawai/riwayat-presensi`   | ADMIN, HR | Riwayat presensi semua pegawai  |
+| GET    | `/pegawai/:id`                | ADMIN, HR | Detail pegawai                  |
+| POST   | `/pegawai`                    | ADMIN     | Buat pegawai baru               |
+| PATCH  | `/pegawai/:id`                | ADMIN     | Update pegawai                  |
+| DELETE | `/pegawai/:id`                | ADMIN     | Hapus pegawai                   |
+| GET    | `/pegawai/:id/shift`          | ADMIN, HR | Riwayat shift pegawai           |
+| POST   | `/pegawai/:id/assign-shift`   | ADMIN, HR | Tugaskan shift ke pegawai       |
+
+### Admin — Shift (`/api/v1/admin/shift`)
+
+| Method | Path         | Role  | Keterangan      |
+|--------|--------------|-------|-----------------|
+| GET    | `/shift`     | ADMIN | List shift      |
+| GET    | `/shift/:id` | ADMIN | Detail shift    |
+| POST   | `/shift`     | ADMIN | Buat shift baru |
+| PATCH  | `/shift/:id` | ADMIN | Update shift    |
+| DELETE | `/shift/:id` | ADMIN | Hapus shift     |
+
+### Presensi Pegawai (`/api/v1/pegawai/presensi-pegawai`)
+
+| Method | Path                      | Keterangan                                 |
+|--------|---------------------------|--------------------------------------------|
+| GET    | `/presensi-pegawai/today` | Status presensi hari ini + shift aktif     |
+| POST   | `/presensi-pegawai/masuk` | Clock in (multipart: field `foto`)         |
+| POST   | `/presensi-pegawai/keluar`| Clock out (multipart: field `foto`)        |
+
+### Static Files
+
+Upload foto diakses via: `GET /uploads/<filename>`
+
+## Variabel Environment
+
+| Key                      | Default       | Keterangan                          |
+|--------------------------|---------------|-------------------------------------|
+| `APP_PORT`               | `3005`        | Port server                         |
+| `APP_ENV`                | `development` | `production` untuk JSON logging     |
+| `DATABASE_URL`           | —             | PostgreSQL connection string        |
+| `JWT_ACCESS_SECRET`      | —             | Secret untuk access token           |
+| `JWT_REFRESH_SECRET`     | —             | Secret untuk refresh token          |
+| `JWT_ACCESS_EXPIRES_IN`  | `15m`         | TTL access token                    |
+| `JWT_REFRESH_EXPIRES_IN` | `7d`          | TTL refresh token (httpOnly cookie) |
