@@ -17,11 +17,15 @@ ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/generated ./generated
+COPY prisma ./prisma
+COPY prisma.config.ts ./
+COPY docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 ARG APP_PORT=3005
 EXPOSE ${APP_PORT}
 
-CMD ["node", "dist/src/main.js"]
+CMD ["sh", "docker-entrypoint.sh"]

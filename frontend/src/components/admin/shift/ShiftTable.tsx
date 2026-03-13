@@ -94,7 +94,7 @@ export function ShiftTable({ onAdd, onEdit, onDelete }: Props) {
                 <td className="px-4 py-3 font-medium text-gray-900">{s.nama_shift}</td>
                 <td className="px-4 py-3 text-gray-600">{s.jam_masuk}</td>
                 <td className="px-4 py-3 text-gray-600">{s.jam_keluar}</td>
-                <td className="px-4 py-3 text-gray-600">{s.toleransi}</td>
+                <td className="px-4 py-3 text-gray-600">{s.toleransi} menit</td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${s.is_aktif ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                     {s.is_aktif ? 'Aktif' : 'Nonaktif'}
