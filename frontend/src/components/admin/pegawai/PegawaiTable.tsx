@@ -69,8 +69,7 @@ export function PegawaiTable({ onAdd, onEdit, onDelete, onAssignShift }: Props) 
           <thead>
             <tr className="border-b bg-gray-50 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
               <th className="px-4 py-3">No</th>
-              <th className="px-4 py-3">NIP</th>
-              <th className="px-4 py-3">Nama</th>
+              <th className="px-4 py-3 min-w-[150px]">Nama/NIP</th>
               <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3">Departemen</th>
               <th className="px-4 py-3">Jabatan</th>
@@ -100,8 +99,12 @@ export function PegawaiTable({ onAdd, onEdit, onDelete, onAssignShift }: Props) 
                 <td className="px-4 py-3 text-gray-500">
                   {((page - 1) * 10) + idx + 1}
                 </td>
-                <td className="px-4 py-3 text-xs text-gray-700">{p.nip}</td>
-                <td className="px-4 py-3 font-medium text-gray-900">{p.nama}</td>
+                <td className="px-4 py-3 text-gray-700">
+                  <div className="flex flex-col gap-1 items-start justify-start">
+                    <span className="font-medium text-gray-900">{p.nama}</span>
+                    <span className="text-gray-700 text-xs">{p.nip}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-gray-600">{p.user.email}</td>
                 <td className="px-4 py-3 text-gray-600">{p.departemen ?? '-'}</td>
                 <td className="px-4 py-3 text-gray-600">{p.jabatan ?? '-'}</td>

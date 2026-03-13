@@ -120,7 +120,6 @@ export default function RiwayatPresensiTable() {
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Jam Masuk</th>
                 <th className="px-4 py-3">Jam Keluar</th>
-                <th className="px-4 py-3">Keterangan</th>
                 <th className="px-4 py-3">Detail</th>
               </tr>
             </thead>
@@ -154,7 +153,6 @@ export default function RiwayatPresensiTable() {
                   </td>
                   <td className="px-4 py-3 text-gray-600">{formatTime(p.jam_masuk)}</td>
                   <td className="px-4 py-3 text-gray-600">{formatTime(p.jam_keluar)}</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{p.keterangan ?? '-'}</td>
                   <td className="px-4 py-3 text-gray-600">
                     <div className="flex items-center justify-center">
                       <button
