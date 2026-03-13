@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Plus, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { getPegawaiList } from '@/lib/pegawai-api';
 import type { Pegawai } from '@/types/pegawai';
 
@@ -16,9 +16,10 @@ interface Props {
   onAdd: () => void;
   onEdit: (pegawai: Pegawai) => void;
   onDelete: (pegawai: Pegawai) => void;
+  onAssignShift: (pegawai: Pegawai) => void;
 }
 
-export function PegawaiTable({ onAdd, onEdit, onDelete }: Props) {
+export function PegawaiTable({ onAdd, onEdit, onDelete, onAssignShift }: Props) {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -116,6 +117,13 @@ export function PegawaiTable({ onAdd, onEdit, onDelete }: Props) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center justify-center gap-2">
+                    <button
+                      onClick={() => onAssignShift(p)}
+                      className="rounded-lg border border-gray-200 p-1.5 text-gray-500 transition-colors hover:border-violet-300 hover:text-violet-600 cursor-pointer"
+                      title="Assign Shift"
+                    >
+                      <CalendarDays size={14} />
+                    </button>
                     <button
                       onClick={() => onEdit(p)}
                       className="rounded-lg border border-gray-200 p-1.5 text-gray-500 transition-colors hover:border-sky-300 hover:text-sky-600 cursor-pointer"

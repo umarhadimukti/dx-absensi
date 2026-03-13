@@ -5,12 +5,14 @@ import { PegawaiTable } from '@/components/admin/pegawai/PegawaiTable';
 import { CreatePegawaiModal } from '@/components/admin/pegawai/CreatePegawaiModal';
 import { EditPegawaiModal } from '@/components/admin/pegawai/EditPegawaiModal';
 import { DeletePegawaiModal } from '@/components/admin/pegawai/DeletePegawaiModal';
+import { AssignShiftModal } from '@/components/admin/pegawai/AssignShiftModal';
 import type { Pegawai } from '@/types/pegawai';
 
 export default function Pegawai() {
   const [showCreate, setShowCreate] = useState(false);
   const [editTarget, setEditTarget] = useState<Pegawai | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Pegawai | null>(null);
+  const [assignTarget, setAssignTarget] = useState<Pegawai | null>(null);
 
   return (
     <div className="mb-5">
@@ -25,6 +27,7 @@ export default function Pegawai() {
         onAdd={() => setShowCreate(true)}
         onEdit={(p) => setEditTarget(p)}
         onDelete={(p) => setDeleteTarget(p)}
+        onAssignShift={(p) => setAssignTarget(p)}
       />
       <CreatePegawaiModal
         open={showCreate}
@@ -40,7 +43,11 @@ export default function Pegawai() {
         pegawai={deleteTarget}
         onClose={() => setDeleteTarget(null)}
       />
-
+      <AssignShiftModal
+        open={!!assignTarget}
+        pegawai={assignTarget}
+        onClose={() => setAssignTarget(null)}
+      />
     </div>
   );
 }

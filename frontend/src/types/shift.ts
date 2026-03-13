@@ -32,3 +32,20 @@ export interface UpdateShiftPayload {
   jam_keluar?: string;
   toleransi?: number;
 }
+
+export interface ShiftPegawai {
+  id: number;
+  pegawai_id: number;
+  shift_id: number;
+  berlaku_dari: string;
+  berlaku_sampai: string | null;
+  created_at: string;
+  updated_at: string;
+  shift: Shift;
+}
+
+export interface AssignShiftPayload {
+  shift_id: number;
+  berlaku_dari: string;
+  berlaku_sampai?: string;
+}

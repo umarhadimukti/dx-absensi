@@ -1,5 +1,6 @@
 import { apiFetch, getAuthHeaders } from './api';
 import type { CreatePegawaiPayload, PegawaiListData, UpdatePegawaiPayload } from '@/types/pegawai';
+import type { AssignShiftPayload, ShiftPegawai } from '@/types/shift';
 
 const BASE = '/api/v1/admin/pegawai';
 
@@ -28,6 +29,18 @@ export function updatePegawai(id: number, payload: UpdatePegawaiPayload) {
 export function deletePegawai(id: number) {
   return apiFetch<unknown>(`${BASE}/${id}`, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+}
+
+export function getShiftPegawai(pegawaiId: number) {
+  return apiFetch<ShiftPegawai[]>(`${BASE}/${pegawaiId}/shift`, { headers: getAuthHeaders() });
+}
+
+export function assignShiftPegawai(pegawaiId: number, payload: AssignShiftPayload) {
+  return apiFetch<unknown>(`${BASE}/${pegawaiId}/assign-shift`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
     headers: getAuthHeaders(),
   });
 }
