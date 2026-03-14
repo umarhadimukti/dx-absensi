@@ -3,8 +3,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { PresensiPegawaiController } from './presensi-pegawai.controller';
 import { PresensiPegawaiService } from './presensi-pegawai.service';
 import { PresensiPegawaiRepository } from './presensi-pegawai.repository';
-
-export const NOTIFICATION_SERVICE = 'NOTIFICATION_SERVICE';
+import { NOTIFICATION_SERVICE } from './presensi-pegawai.constant';
 
 @Module({
   imports: [

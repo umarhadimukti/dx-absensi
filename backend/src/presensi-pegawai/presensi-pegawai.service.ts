@@ -1,7 +1,7 @@
 import { BadRequestException, ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import type { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy } from '@nestjs/microservices';
 import { PresensiPegawaiRepository } from './presensi-pegawai.repository';
-import { NOTIFICATION_SERVICE } from './presensi-pegawai.module';
+import { NOTIFICATION_SERVICE } from './presensi-pegawai.constant';
 import type { PresensiMasukDto } from './dto/presensi-masuk.dto';
 import type { PresensiKeluarDto } from './dto/presensi-keluar.dto';
 import { PresensiPegawaiConstant } from './presensi-pegawai.constant';
