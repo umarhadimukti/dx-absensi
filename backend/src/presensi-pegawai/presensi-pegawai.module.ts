@@ -4,6 +4,7 @@ import { PresensiPegawaiController } from './presensi-pegawai.controller';
 import { PresensiPegawaiService } from './presensi-pegawai.service';
 import { PresensiPegawaiRepository } from './presensi-pegawai.repository';
 import { NOTIFICATION_SERVICE } from './presensi-pegawai.constant';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -15,11 +16,13 @@ import { NOTIFICATION_SERVICE } from './presensi-pegawai.constant';
     ClientsModule.registerAsync([
       {
         name: NOTIFICATION_SERVICE,
-        useFactory: () => ({
+        imports: [ConfigModule],
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => ({
           transport: Transport.TCP,
           options: {
-            host: process.env.NOTIFICATION_SERVICE_HOST ?? 'localhost',
-            port: Number(process.env.NOTIFICATION_SERVICE_PORT ?? 3007),
+            host: configService.get('NOTIFICATION_SERVICE_HOST') ?? 'localhost',
+            port: Number(configService.get('NOTIFICATION_SERVICE_PORT') ?? 3007),
           },
         }),
       },

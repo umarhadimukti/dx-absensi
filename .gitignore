@@ -1,134 +1,76 @@
-# compiled output
-/backend/dist
-/backend/node_modules
-/backend/build
-# Logs
-/backend/logs
-/backend/*.log
-/backend/npm-debug.log*
-/backend/pnpm-debug.log*
-/backend/yarn-debug.log*
-/backend/yarn-error.log*
-/backend/lerna-debug.log*
-# OS
-/backend/.DS_Store
-# Tests
-/backend/coverage
-/backend/.nyc_output
-# IDEs and editors
-/backend/.idea
-/backend/.project
-/backend/.classpath
-/backend/.c9/
-/backend/*.launch
-/backend/.settings/
-/backend/*.sublime-workspace
-# IDE - VSCode
-/backend/.vscode/*
-/backend/!.vscode/settings.json
-/backend/!.vscode/tasks.json
-/backend/!.vscode/launch.json
-/backend/!.vscode/extensions.json
-# dotenv environment variable files
-/backend/.env
-/backend/.env.development.local
-/backend/.env.test.local
-/backend/.env.production.local
-/backend/.env.local
-# temp directory
-/backend/.temp
-/backend/.tmp
-# Runtime data
-/backend/pids
-/backend/*.pid
-/backend/*.seed
-/backend/*.pid.lock
-# Diagnostic reports (https://nodejs.org/api/report.html)
-/backend/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-/backend/generated/prisma
-# uploads
-/backend/uploads
+# Node
+node_modules/
+pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.log
+logs/
 
-# compiled output
-/notification-service/dist
-/notification-service/node_modules
-/notification-service/build
-# Logs
-/notification-service/logs
-/notification-service/*.log
-/notification-service/npm-debug.log*
-/notification-service/pnpm-debug.log*
-/notification-service/yarn-debug.log*
-/notification-service/yarn-error.log*
-/notification-service/lerna-debug.log*
-# OS
-/notification-service/.DS_Store
-# Tests
-/notification-service/coverage
-/notification-service/.nyc_output
-# IDEs and editors
-/notification-service/.idea
-/notification-service/.project
-/notification-service/.classpath
-/notification-service/.c9/
-/notification-service/*.launch
-/notification-service/.settings/
-/notification-service/*.sublime-workspace
-# IDE - VSCode
-/notification-service/.vscode/*
-/notification-service/!.vscode/settings.json
-/notification-service/!.vscode/tasks.json
-/notification-service/!.vscode/launch.json
-/notification-service/!.vscode/extensions.json
-# dotenv environment variable files
-/notification-service/.env
-/notification-service/.env.development.local
-/notification-service/.env.test.local
-/notification-service/.env.production.local
-/notification-service/.env.local
-# temp directory
-/notification-service/.temp
-/notification-service/.tmp
-# Runtime data
-/notification-service/pids
-/notification-service/*.pid
-/notification-service/*.seed
-/notification-service/*.pid.lock
-# Diagnostic reports (https://nodejs.org/api/report.html)
-/notification-service/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-/notification-service/generated/prisma
-# uploads
-/notification-service/uploads
+# Build output
+dist/
+build/
+out/
 
-# dependencies
-/frontend/node_modules
-/frontend/.pnp
-/frontend/.pnp.*
-/frontend/.yarn/*
-/frontend/!.yarn/patches
-/frontend/!.yarn/plugins
-/frontend/!.yarn/releases
-/frontend/!.yarn/versions
-# testing
-/frontend/coverage
-# next.js
-/frontend/.next/
-/frontend/out/
-# production
-/frontend/build
-# misc
-/frontend/.DS_Store
-/frontend/*.pem
-# debug
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
-/frontend/.pnpm-debug.log*
-# env files (can opt-in for committing if needed)
-/frontend/.env*
-# vercel
-/frontend/.vercel
-# typescript
-/frontend/*.tsbuildinfo
-/frontend/next-env.d.ts
+# Next.js
+.next/
+next-env.d.ts
+*.tsbuildinfo
+
+# Prisma generated client
+**/generated/prisma/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Test & coverage
+coverage/
+.nyc_output/
+
+# Uploads (runtime files) 
+backend/uploads/
+
+# Runtime data
+pids/
+*.pid
+*.pid.lock
+*.seed
+.temp/
+.tmp/
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# OS
 .DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# VSCode — izinkan file konfigurasi tim, abaikan folder user
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Yarn (frontend)
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Misc
+*.pem
+.vercel
