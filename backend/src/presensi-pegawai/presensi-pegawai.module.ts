@@ -30,5 +30,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   ],
   controllers: [PresensiPegawaiController],
   providers: [PresensiPegawaiService, PresensiPegawaiRepository],
+  exports: [PresensiPegawaiRepository],
 })
 export class PresensiPegawaiModule {}

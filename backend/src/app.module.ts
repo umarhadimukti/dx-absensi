@@ -12,12 +12,14 @@ import { PresensiPegawaiModule } from './presensi-pegawai/presensi-pegawai.modul
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { GroupingAPI } from './constants/api';
+import { PegawaiModule } from './pegawai/pegawai.module';
 
 @Module({
   imports: [
     RouterModule.register([
       GroupingAPI('api/v1/admin', AdminModule),
       GroupingAPI('api/v1/pegawai', PresensiPegawaiModule),
+      GroupingAPI('api/v1/pegawai', PegawaiModule),
     ]),
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env.local' }),
     LoggerModule.forRootAsync({
@@ -44,6 +46,7 @@ import { GroupingAPI } from './constants/api';
     AuthModule,
     AdminModule,
     PresensiPegawaiModule,
+    PegawaiModule,
   ],
   controllers: [AppController],
   providers: [
