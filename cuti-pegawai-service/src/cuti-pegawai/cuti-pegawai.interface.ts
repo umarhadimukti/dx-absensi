@@ -6,7 +6,6 @@ export interface FilterRiwayatCuti {
 }
 
 export interface PayloadRiwayatCuti {
-  page: number;
   limit: number;
   skip: number;
   keyword?: string;

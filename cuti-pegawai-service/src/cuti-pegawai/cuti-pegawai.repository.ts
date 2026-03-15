@@ -5,7 +5,7 @@ import { Prisma } from "generated/client";
 
 const CUTI_PEGAWAI_SELECT = {
   id: true,
-  pegawai: { select: { id: true, nama: true, departemen: true } },
+  dexa_pegawai: { select: { id: true, nama: true, departemen: true } },
   jenis_cuti: true,
   tanggal_dari: true,
   tanggal_sampai: true,
@@ -23,7 +23,7 @@ export class CutiPegawaiRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   findRiwayatCutiByPegawaiId(pegawaiId: number, payload: PayloadRiwayatCuti) {
-    const { page, skip, limit, keyword } = payload;
+    const { skip, limit, keyword } = payload;
     const where = {
       pegawai_id: pegawaiId,
       ...(keyword && {

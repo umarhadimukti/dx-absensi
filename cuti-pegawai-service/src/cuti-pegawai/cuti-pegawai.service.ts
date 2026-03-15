@@ -13,7 +13,7 @@ export class CutiPegawaiService {
     const skip = (page - 1) * limit;
     const keyword = filter.keyword || undefined;
 
-    const payload = { page, limit, skip, keyword };
+    const payload = { limit, skip, keyword };
 
     const [data, total] = await Promise.all([
       this.repo.findRiwayatCutiByPegawaiId(pegawaiId, payload),
