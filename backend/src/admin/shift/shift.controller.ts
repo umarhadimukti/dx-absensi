@@ -12,8 +12,8 @@ export class ShiftController {
 
   @Get()
   getShift(
-    @Query('page') page = '1',
-    @Query('limit') limit = '10',
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
     @Query('search') search?: string,
   ) {
     return this.shiftService.getShift(Number(page), Number(limit), search);

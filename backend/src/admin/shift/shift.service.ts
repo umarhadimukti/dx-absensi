@@ -9,6 +9,9 @@ export class ShiftService {
   constructor(private readonly shiftRepo: ShiftRepository) {}
 
   async getShift(page: number, limit: number, search?: string) {
+    page = Math.max(page, 1);
+    limit = Math.min(limit, 100);
+    
     const skip = (page - 1) * limit;
     const [data, total_data] = await Promise.all([
       this.shiftRepo.findShift(skip, limit, search),

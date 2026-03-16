@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { PayloadRiwayatCuti } from "./cuti-pegawai.interface";
+import { PayloadInsertCuti, PayloadRiwayatCuti, PayloadUpdateCuti } from "./cuti-pegawai.interface";
 import { PrismaService } from "src/database/prisma.service";
-import { Prisma } from "generated/client";
+import { Prisma, StatusCuti } from "generated/client";
 
 const PEGAWAI_SELECT = {
   id: true,
@@ -15,7 +15,9 @@ const PEGAWAI_SELECT = {
   is_aktif: true,
   created_at: true,
   updated_at: true,
-  user: { id: true, email: true, role: true },
+  users: {
+    select: { id: true, email: true, role: true },
+  } as const,
 }
 
 const CUTI_PEGAWAI_SELECT = {
@@ -76,10 +78,75 @@ export class CutiPegawaiRepository {
   }
 
   findDetailRiwayatCuti(pegawaiId: number, cutiId: number) {
-    return this.prisma.db.dexa_cuti_pegawai.findUnique({
+    return this.prisma.db.dexa_cuti_pegawai.findFirst({
       where: {
         id: cutiId,
         pegawai_id: pegawaiId,
+      },
+      select: CUTI_PEGAWAI_SELECT,
+    });
+  }
+
+  insertCuti(pegawaiId: number, payload: PayloadInsertCuti) {
+    const tanggalDari = new Date(payload.tanggal_dari);
+    const tanggalSampai = new Date(payload.tanggal_sampai);
+
+    const diffTime = Math.abs(tanggalSampai.getTime() - tanggalDari.getTime());
+
+    const jumlahHari = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    return this.prisma.db.dexa_cuti_pegawai.create({
+      data: {
+        pegawai_id: pegawaiId,
+        jenis_cuti: payload.jenis_cuti,
+        tanggal_dari: tanggalDari,
+        tanggal_sampai: tanggalSampai,
+        jumlah_hari: jumlahHari,
+        alasan: payload.alasan,
+        status: StatusCuti.MENUNGGU,
+        updated_at: new Date(),
+      },
+      select: CUTI_PEGAWAI_SELECT,
+    });
+  }
+
+  findCutiByPegawaiIdAndCutiId(pegawaiId: number, cutiId: number) {
+    return this.prisma.db.dexa_cuti_pegawai.findFirst({
+      where: {
+        id: cutiId,
+        pegawai_id: pegawaiId,
+      },
+      select: CUTI_PEGAWAI_SELECT,
+    });
+  }
+
+  updateCuti(pegawaiId: number, payload: PayloadUpdateCuti) {
+    const tanggalDari = new Date(payload.tanggal_dari);
+    const tanggalSampai = new Date(payload.tanggal_sampai);
+    const diffTime = Math.abs(tanggalSampai.getTime() - tanggalDari.getTime());
+    const jumlahHari = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    return this.prisma.db.dexa_cuti_pegawai.update({
+      where: { id: payload.cuti_id },
+      data: {
+        pegawai_id: pegawaiId,
+        jenis_cuti: payload.jenis_cuti,
+        tanggal_dari: tanggalDari,
+        tanggal_sampai: tanggalSampai,
+        jumlah_hari: jumlahHari,
+        alasan: payload.alasan,
+        updated_at: new Date(),
+      },
+      select: CUTI_PEGAWAI_SELECT,
+    });
+  }
+
+  cancelCuti(cutiId: number) {
+    return this.prisma.db.dexa_cuti_pegawai.update({
+      where: { id: cutiId },
+      data: {
+        status: StatusCuti.DIBATALKAN,
+        updated_at: new Date(),
       },
       select: CUTI_PEGAWAI_SELECT,
     });
