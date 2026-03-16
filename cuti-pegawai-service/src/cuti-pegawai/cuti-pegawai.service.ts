@@ -1,13 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { FilterRiwayatCuti } from './cuti-pegawai.interface';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { FilterRiwayatCuti, PayloadDetailRiwayatCuti } from './cuti-pegawai.interface';
 import { CutiPegawaiRepository } from './cuti-pegawai.repository';
+import { CutiPegawaiConstant } from './cuti-pegawai.constant';
 
 @Injectable()
 export class CutiPegawaiService {
   constructor(private readonly repo: CutiPegawaiRepository) {}
 
   async getRiwayatCuti(filter: FilterRiwayatCuti) {
-    const pegawaiId = filter.pegawai_id;
+    const pegawai = await this.repo.findPegawaiByUserId(filter.user_id);
+    if (!pegawai) throw new NotFoundException(CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
+
+    const pegawaiId = pegawai.id;
     const page = filter.page;
     const limit = Math.min(filter.limit, 100);
     const skip = (page - 1) * limit;
@@ -29,6 +33,19 @@ export class CutiPegawaiService {
         total_page: Math.ceil(total / limit) || 1,
       },
     };
+  }
+
+  async detailRiwayatCuti(payload: PayloadDetailRiwayatCuti) {
+    const pegawai = await this.repo.findPegawaiByUserId(payload.user_id);
+    if (!pegawai) throw new NotFoundException(CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND);
+
+    const pegawaiId = pegawai.id;
+    const { cuti_id: cutiId } = payload;
+    
+    const detailCuti = await this.repo.findDetailRiwayatCuti(pegawaiId, cutiId);
+    if (!detailCuti) throw new NotFoundException(CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND);
+
+    return detailCuti;
   }
 
 }

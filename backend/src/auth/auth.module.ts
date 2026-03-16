@@ -11,6 +11,12 @@ import { JwtModule } from '../common/jwt/jwt.module';
 @Module({
   imports: [PassportModule, JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, LocalStrategy, JwtStrategy, JwtRefreshStrategy],
+  providers: [
+    AuthRepository,
+    AuthService,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    LocalStrategy,
+  ],
 })
 export class AuthModule {}

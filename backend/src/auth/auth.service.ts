@@ -14,19 +14,20 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<AuthUser | null> {
     const user = await this.authRepository.findByEmail(email);
-    if (!user || !user.is_active) return null;
+    if (!user) return null;
 
     const isValid = await compare(password, user.password);
     if (!isValid) return null;
 
-    return { userId: user.id, email: user.email, role: user.role };
+    return { userId: user.id, email: user.email, role: user.role, isActive: user.is_active };
   }
 
   login(user: AuthUser) {
     const payload: JwtPayload = {
       sub: user.userId,
       email: user.email,
-      role: user.role
+      role: user.role,
+      is_active: user.isActive,
     };
     return {
       accessToken: this.jwtUtil.generateAccessToken(payload),
@@ -36,7 +37,12 @@ export class AuthService {
   }
 
   refreshToken(user: AuthUser) {
-    const payload: JwtPayload = { sub: user.userId, email: user.email, role: user.role };
+    const payload: JwtPayload = {
+      sub: user.userId,
+      email: user.email,
+      role: user.role,
+      is_active: user.isActive,
+    };
     return {
       accessToken: this.jwtUtil.generateAccessToken(payload),
     };

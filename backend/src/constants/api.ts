@@ -7,6 +7,8 @@ export const cors = {
 
 export const CommonConstant = {
   ERR_FORBIDDEN_ACCESS: 'Anda tidak memiliki akses ke sumber daya ini.',
+  ERR_UNAUTHORIZED: 'Anda tidak terautentikasi.',
+  ERR_UNACTIVE_USER: 'Akun tidak aktif, silahkan hubungi tim admin.',
 }
 
 export const GroupingAPI = (path: string, module: Type<any>) => ({ path, module });

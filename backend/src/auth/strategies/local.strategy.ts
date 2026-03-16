@@ -1,8 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from '../auth.service';
 import { AuthConstant } from '../auth.constant';
+import { CommonConstant } from 'src/constants/api';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, AuthConstant.STRATEGY_LOCAL) {
@@ -13,6 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, AuthConstant.STRAT
   async validate(email: string, password: string) {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new UnauthorizedException(AuthConstant.ERR_INVALID_CREDENTIALS);
+    if (user && !user.isActive) throw new ForbiddenException(CommonConstant.ERR_UNACTIVE_USER);
     return user;
   }
 }

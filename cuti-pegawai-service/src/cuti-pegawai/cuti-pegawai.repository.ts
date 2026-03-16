@@ -3,6 +3,21 @@ import { PayloadRiwayatCuti } from "./cuti-pegawai.interface";
 import { PrismaService } from "src/database/prisma.service";
 import { Prisma } from "generated/client";
 
+const PEGAWAI_SELECT = {
+  id: true,
+  nip: true,
+  nama: true,
+  departemen: true,
+  jabatan: true,
+  no_telepon: true,
+  alamat: true,
+  tanggal_masuk: true,
+  is_aktif: true,
+  created_at: true,
+  updated_at: true,
+  user: { id: true, email: true, role: true },
+}
+
 const CUTI_PEGAWAI_SELECT = {
   id: true,
   dexa_pegawai: { select: { id: true, nama: true, departemen: true } },
@@ -21,6 +36,13 @@ const CUTI_PEGAWAI_SELECT = {
 @Injectable()
 export class CutiPegawaiRepository {
   constructor(private readonly prisma: PrismaService) {}
+
+  findPegawaiByUserId(userId: number) {
+    return this.prisma.db.dexa_pegawai.findUnique({
+      where: { user_id: userId },
+      select: PEGAWAI_SELECT,
+    });
+  }
 
   findRiwayatCutiByPegawaiId(pegawaiId: number, payload: PayloadRiwayatCuti) {
     const { skip, limit, keyword } = payload;
@@ -51,5 +73,15 @@ export class CutiPegawaiRepository {
       }),
     };
     return this.prisma.db.dexa_cuti_pegawai.count({ where });
+  }
+
+  findDetailRiwayatCuti(pegawaiId: number, cutiId: number) {
+    return this.prisma.db.dexa_cuti_pegawai.findUnique({
+      where: {
+        id: cutiId,
+        pegawai_id: pegawaiId,
+      },
+      select: CUTI_PEGAWAI_SELECT,
+    });
   }
 }

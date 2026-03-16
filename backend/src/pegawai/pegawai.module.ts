@@ -3,7 +3,6 @@ import { PegawaiController } from './pegawai.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CUTI_PEGAWAI_SERVICE } from './pegawai.constant';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { PresensiPegawaiModule } from 'src/presensi-pegawai/presensi-pegawai.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { PresensiPegawaiModule } from 'src/presensi-pegawai/presensi-pegawai.mod
         }),
       },
     ]),
-    PresensiPegawaiModule,
   ],
   controllers: [PegawaiController],
 })
