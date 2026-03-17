@@ -41,9 +41,36 @@ model dexa_pegawai {
   updated_at    DateTime  @updatedAt
 
   user          users                  @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  kantor        dexa_pegawai_kantor[]
   shifts        dexa_shift_pegawai[]
   presensi      dexa_presensi_pegawai[]
   cuti          dexa_cuti_pegawai[]
+}
+
+// Master kantor
+model dexa_master_kantor {
+  id         Int     @id @default(autoincrement())
+  nama       String
+  alamat     String?
+  latitude   Float
+  longitude  Float
+  radius     Int      @default(200)  // radius dalam meter (200m)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  pegawai    dexa_pegawai_kantor[]
+}
+
+model dexa_pegawai_kantor {
+  id            Int                  @id @default(autoincrement())
+  pegawai_id    Int
+  kantor_id     Int
+  is_aktif      Boolean              @default(true)
+  created_at    DateTime             @default(now())
+  updated_at    DateTime             @updatedAt
+
+  pegawai       dexa_pegawai         @relation(fields: [pegawai_id], references: [id], onDelete: Cascade)
+  kantor        dexa_master_kantor   @relation(fields: [kantor_id], references: [id], onDelete: Cascade)
 }
 
 // Master Shift
@@ -85,7 +112,7 @@ model dexa_presensi_pegawai {
   jam_masuk       DateTime?
   jam_keluar      DateTime?
   status          StatusPresensi @default(HADIR)
-  lokasi_masuk    String?        // alamat WFH check-in
+  lokasi_masuk    String?        
   lokasi_keluar   String?
   foto_masuk      String?        // path / URL foto selfie
   foto_keluar     String?
@@ -94,6 +121,7 @@ model dexa_presensi_pegawai {
   updated_at      DateTime       @updatedAt
 
   pegawai         dexa_pegawai   @relation(fields: [pegawai_id], references: [id], onDelete: Cascade)
+  presensi_lokasi dexa_presensi_lokasi[]
 
   @@unique([pegawai_id, tanggal])
   @@index([tanggal])
@@ -106,6 +134,25 @@ enum StatusPresensi {
   SAKIT
   ALPHA
   CUTI
+}
+
+model dexa_presensi_lokasi {
+  id                  Int          @id @default(autoincrement())
+  presensi_pegawai_id Int
+  presensi_type       PresensiType @default(CHECKIN)
+  latitude            Float
+  longitude           Float
+  created_at          DateTime     @default(now())
+  updated_at          DateTime     @updatedAt
+
+  presensi_pegawai    dexa_presensi_pegawai @relation(fields: [presensi_pegawai_id], references: [id], onDelete: Cascade)
+
+  @@unique([presensi_pegawai_id])
+}
+
+enum PresensiType {
+  CHECKIN
+  CHECKOUT
 }
 
 // Pengajuan Cuti Pegawai
