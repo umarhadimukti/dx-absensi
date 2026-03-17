@@ -7,6 +7,7 @@ import { GetUser } from 'src/common/interceptors/get-user.interceptor';
 import { AuthUser } from 'src/auth/auth.interface';
 import { InsertCutiDto } from './dto/insert-cuti.dto';
 import { UpdateCutiDto } from './dto/update-cuti.dto';
+import { UpdateStatusCutiDto } from './dto/update-status-cuti.dto';
 
 @Controller()
 export class PegawaiController {
@@ -98,6 +99,29 @@ export class PegawaiController {
       .pipe(catchError(err => {
         throw new HttpException(
           err?.message || 'Gagal membatalkan cuti',
+          err?.statusCode || HttpStatus.BAD_REQUEST,
+        );
+      }));
+  }
+
+  @Patch('cuti/:id/update-status')
+  @HttpCode(HttpStatus.OK)
+  updateStatusCuti(
+    @GetUser() user: AuthUser,
+    @Param('id', ParseIntPipe) cutiId: number,
+    @Body() dto: UpdateStatusCutiDto,
+  ) {
+    const payload = {
+      user_id: user.userId,
+      cuti_id: cutiId,
+      status: dto.status,
+      catatan_hr: dto.catatan_hr,
+    };
+    return this.cutiPegawaiClient
+      .send({ cmd: 'cuti.update.status' }, payload)
+      .pipe(catchError(err => {
+        throw new HttpException(
+          err?.message || 'Gagal memperbarui status cuti',
           err?.statusCode || HttpStatus.BAD_REQUEST,
         );
       }));

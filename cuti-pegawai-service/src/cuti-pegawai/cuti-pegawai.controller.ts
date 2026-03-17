@@ -1,12 +1,13 @@
 import { Controller } from '@nestjs/common';
 import { CutiPegawaiService } from './cuti-pegawai.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Ctx, MessagePattern, NatsContext, Payload } from '@nestjs/microservices';
 import type {
   FilterRiwayatCuti,
   PayloadCancelCuti,
   PayloadDetailRiwayatCuti,
   PayloadInsertCuti,
   PayloadUpdateCuti,
+  PayloadUpdateStatusCuti,
 } from './cuti-pegawai.interface';
 
 @Controller('cuti-pegawai')
@@ -36,5 +37,10 @@ export class CutiPegawaiController {
   @MessagePattern({ cmd: 'cuti.cancel' })
   cancelCuti(@Payload() payload: PayloadCancelCuti) {
     return this.service.cancelCuti(payload);
+  }
+
+  @MessagePattern({ cmd: 'cuti.update.status' })
+  updateStatusCuti(@Payload() payload: PayloadUpdateStatusCuti) {
+    return this.service.updateStatusCuti(payload);
   }
 }

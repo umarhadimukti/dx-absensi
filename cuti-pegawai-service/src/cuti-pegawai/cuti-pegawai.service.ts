@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import {
   FilterRiwayatCuti,
@@ -6,10 +6,11 @@ import {
   PayloadDetailRiwayatCuti,
   PayloadInsertCuti,
   PayloadUpdateCuti,
+  PayloadUpdateStatusCuti,
 } from './cuti-pegawai.interface';
 import { CutiPegawaiRepository } from './cuti-pegawai.repository';
 import { CutiPegawaiConstant } from './cuti-pegawai.constant';
-import { StatusCuti } from 'generated/client';
+import { JenisCuti, StatusCuti } from 'generated/client';
 
 @Injectable()
 export class CutiPegawaiService {
@@ -17,7 +18,7 @@ export class CutiPegawaiService {
 
   async getRiwayatCuti(filter: FilterRiwayatCuti) {
     const pegawai = await this.repo.findPegawaiByUserId(filter.user_id);
-    if (!pegawai) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
+    if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
 
     const pegawaiId = pegawai.id;
     const page = filter.page;
@@ -45,24 +46,32 @@ export class CutiPegawaiService {
 
   async detailRiwayatCuti(payload: PayloadDetailRiwayatCuti) {
     const pegawai = await this.repo.findPegawaiByUserId(payload.user_id);
-    if (!pegawai) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
+    if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
 
     const pegawaiId = pegawai.id;
     const { cuti_id: cutiId } = payload;
 
     const detailCuti = await this.repo.findDetailRiwayatCuti(pegawaiId, cutiId);
-    if (!detailCuti) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
+    if (!detailCuti) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
 
     return detailCuti;
   }
 
   async insertCuti(payload: PayloadInsertCuti) {
     const pegawai = await this.repo.findPegawaiByUserId(payload.user_id);
-    if (!pegawai) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
+    if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
 
     this.ensureValidDateRange(payload.tanggal_dari, payload.tanggal_sampai);
 
     const pegawaiId = pegawai.id;
+
+    switch(payload.jenis_cuti) {
+      case JenisCuti.TAHUNAN:
+        // Maksimal pengajuan cuti tahunan sebanyak 12x
+        const cutiTahunanPegawai = await this.repo.countCutiTahunanPegawai(pegawaiId);
+        if (cutiTahunanPegawai >= 12) throw new RpcException({ statusCode: HttpStatus.BAD_REQUEST, message: CutiPegawaiConstant.ERR_MAX_CUTI_TAHUNAN });
+        break;
+    }
 
     const result = await this.repo.insertCuti(pegawaiId, payload);
     return result;
@@ -70,12 +79,12 @@ export class CutiPegawaiService {
 
   async updateCuti(payload: PayloadUpdateCuti) {
     const pegawai = await this.repo.findPegawaiByUserId(payload.user_id);
-    if (!pegawai) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
+    if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
 
     this.ensureValidDateRange(payload.tanggal_dari, payload.tanggal_sampai);
 
     const cuti = await this.repo.findCutiByPegawaiIdAndCutiId(pegawai.id, payload.cuti_id);
-    if (!cuti) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
+    if (!cuti) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
     if (cuti.status !== StatusCuti.MENUNGGU) {
       throw new RpcException({ statusCode: 400, message: CutiPegawaiConstant.ERR_CUTI_ALREADY_PROCESSED });
     }
@@ -85,10 +94,10 @@ export class CutiPegawaiService {
 
   async cancelCuti(payload: PayloadCancelCuti) {
     const pegawai = await this.repo.findPegawaiByUserId(payload.user_id);
-    if (!pegawai) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
+    if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
 
     const cuti = await this.repo.findCutiByPegawaiIdAndCutiId(pegawai.id, payload.cuti_id);
-    if (!cuti) throw new RpcException({ statusCode: 404, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
+    if (!cuti) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
     if (cuti.status === StatusCuti.DIBATALKAN) {
       throw new RpcException({ statusCode: 400, message: CutiPegawaiConstant.ERR_CUTI_ALREADY_CANCELED });
     }
@@ -106,6 +115,29 @@ export class CutiPegawaiService {
         message: CutiPegawaiConstant.ERR_INVALID_DATE_RANGE,
       });
     }
+  }
+
+  async updateStatusCuti(payload: PayloadUpdateStatusCuti) {
+    const pegawai = await this.repo.findPegawaiByUserId(payload.user_id);
+    if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
+
+    const cuti = await this.repo.findCutiByPegawaiIdAndCutiId(pegawai.id, payload.cuti_id);
+    if (!cuti) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_DETAIL_CUTI_NOTFOUND });
+
+    let approvedBy: number | null = null;
+    if (payload.status === StatusCuti.DISETUJUI) {
+      approvedBy = pegawai.id;
+    }
+
+    const data = {
+      pegawai_id: pegawai.id,
+      cuti_id: payload.cuti_id,
+      status: payload.status,
+      catatan_hr: payload.catatan_hr || undefined,
+      approved_by: approvedBy || undefined,
+    }
+
+    return this.repo.updateStatus(data);
   }
 
 }

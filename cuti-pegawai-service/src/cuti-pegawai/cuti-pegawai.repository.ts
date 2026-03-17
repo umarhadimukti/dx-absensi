@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { PayloadInsertCuti, PayloadRiwayatCuti, PayloadUpdateCuti } from "./cuti-pegawai.interface";
+import { DataUpdateStatusCuti, PayloadInsertCuti, PayloadRiwayatCuti, PayloadUpdateCuti } from "./cuti-pegawai.interface";
 import { PrismaService } from "src/database/prisma.service";
 import { Prisma, StatusCuti } from "generated/client";
 
@@ -147,6 +147,29 @@ export class CutiPegawaiRepository {
       data: {
         status: StatusCuti.DIBATALKAN,
         updated_at: new Date(),
+      },
+      select: CUTI_PEGAWAI_SELECT,
+    });
+  }
+
+  async countCutiTahunanPegawai(pegawaiId: number) {
+    const result = await this.prisma.db.$queryRaw<{ total: number }[]>`
+      SELECT SUM(dcp.tanggal_sampai - dcp.tanggal_dari + 1) as total
+      FROM dexa_cuti_pegawai dcp
+      WHERE pegawai_id = ${pegawaiId} AND status = ${StatusCuti.DISETUJUI}
+    `;
+
+    return Number(result?.[0]?.total) ?? 0;
+  }
+
+  updateStatus(data: DataUpdateStatusCuti) {
+    return this.prisma.db.dexa_cuti_pegawai.update({
+      where: { id: data.cuti_id, pegawai_id: data.pegawai_id },
+      data: {
+        status: data.status,
+        updated_at: new Date(),
+        ...(data.catatan_hr && { catatan_hr: data.catatan_hr }),
+        ...(data.approved_by && { disetujui_oleh: data.approved_by }),
       },
       select: CUTI_PEGAWAI_SELECT,
     });

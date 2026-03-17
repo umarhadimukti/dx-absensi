@@ -1,4 +1,4 @@
-import type { JenisCuti } from 'generated/client';
+import type { JenisCuti, StatusCuti } from 'generated/client';
 
 export interface FilterRiwayatCuti {
   user_id: number;
@@ -37,4 +37,19 @@ export interface PayloadUpdateCuti {
 export interface PayloadCancelCuti {
   user_id: number;
   cuti_id: number;
+}
+
+export interface PayloadUpdateStatusCuti {
+  user_id: number;
+  cuti_id: number;
+  status: StatusCuti;
+  catatan_hr?: string;
+}
+
+export interface DataUpdateStatusCuti {
+  pegawai_id: number;
+  cuti_id: number;
+  status: StatusCuti,
+  catatan_hr?: string | undefined,
+  approved_by?: number | undefined,
 }
