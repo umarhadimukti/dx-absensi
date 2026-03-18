@@ -18,6 +18,16 @@ const PEGAWAI_SELECT = {
   user: {
     select: { id: true, email: true, role: true, is_active: true },
   },
+  kantor: {
+    where: { is_aktif: true },
+    select: {
+      id: true,
+      kantor: {
+        select: { id: true, nama: true, alamat: true, latitude: true, longitude: true, radius: true },
+      },
+    },
+    take: 1,
+  },
 };
 
 const PRESENSI_SELECT = {
@@ -39,6 +49,9 @@ const PRESENSI_SELECT = {
       departemen: true,
       user: { select: { email: true } },
     },
+  },
+  kantor: {
+    select: { id: true, nama: true, alamat: true },
   },
   created_at: true,
   updated_at: true,

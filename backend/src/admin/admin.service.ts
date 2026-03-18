@@ -22,7 +22,10 @@ export class AdminService {
    * GET PEGAWAI
    */
   async getPegawai(page: number, limit: number, search?: string) {
+    page = Math.max(page, 1);
+    limit = limit < 10 ? Math.max(limit, 10) : Math.min(limit, 100);
     const skip = (page - 1) * limit;
+
     const [data, total_data] = await Promise.all([
       this.repo.findPegawai(skip, limit, search),
       this.repo.countPegawai(search),
@@ -128,8 +131,8 @@ export class AdminService {
   async getRiwayatPresensi(dto: GetRiwayatPresensiDto) {
     const tanggalMulai = dto.tanggal_mulai ? new Date(dto.tanggal_mulai) : undefined;
     const tanggalSelesai = dto.tanggal_selesai ? new Date(dto.tanggal_selesai) : undefined;
-    const page = dto.page ?? 1;
-    const limit = dto.limit ?? 20;
+    const page = Math.max(dto.page || 1, 1);
+    const limit = Math.min(Math.max(dto.limit || 10, 10), 100);
     const skip = (page - 1) * limit;
 
     const [data, total_data] = await Promise.all([

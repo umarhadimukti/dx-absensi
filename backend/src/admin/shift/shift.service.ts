@@ -10,7 +10,7 @@ export class ShiftService {
 
   async getShift(page: number, limit: number, search?: string) {
     page = Math.max(page, 1);
-    limit = Math.min(limit, 100);
+    limit = limit < 10 ? Math.max(limit, 10) : Math.min(limit, 100);
     
     const skip = (page - 1) * limit;
     const [data, total_data] = await Promise.all([

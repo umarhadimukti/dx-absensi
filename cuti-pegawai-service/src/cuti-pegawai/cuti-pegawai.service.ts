@@ -21,8 +21,8 @@ export class CutiPegawaiService {
     if (!pegawai) throw new RpcException({ statusCode: HttpStatus.NOT_FOUND, message: CutiPegawaiConstant.ERR_PEGAWAI_NOTFOUND });
 
     const pegawaiId = pegawai.id;
-    const page = filter.page;
-    const limit = Math.min(filter.limit, 100);
+    const page = Math.max(filter.page, 1);
+    const limit = filter.limit < 10 ? Math.max(filter.limit, 10) : Math.min(filter.limit, 100);
     const skip = (page - 1) * limit;
     const keyword = filter.keyword || undefined;
 
