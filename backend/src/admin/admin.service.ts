@@ -7,14 +7,20 @@ import type { UpdatePegawaiDto } from './dto/update-pegawai.dto';
 import type { AssignShiftPegawaiDto } from './dto/assign-shift-pegawai.dto';
 import { AdminConstant } from './admin.constant';
 import { GetRiwayatPresensiDto } from './dto/get-riwayat-presensi.dto';
+import { AssignKantorPegawaiDto } from './dto/assign-kantor-pegawai.dto';
+import { AdminKantorRepository } from './kantor/kantor.repository';
 
 @Injectable()
 export class AdminService {
   constructor(
     private readonly repo: AdminRepository,
     private readonly shiftRepo: ShiftRepository,
+    private readonly kantorRepo: AdminKantorRepository,
   ) {}
 
+  /**
+   * GET PEGAWAI
+   */
   async getPegawai(page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
     const [data, total_data] = await Promise.all([
@@ -24,12 +30,18 @@ export class AdminService {
     return { data, pagination: { page, limit, total_data, total_page: Math.ceil(total_data / limit) } };
   }
 
+  /**
+   * GET DETAIL PEGAWAI
+   */
   async getPegawaiById(id: number) {
     const pegawai = await this.repo.findPegawaiById(id);
     if (!pegawai) throw new NotFoundException(AdminConstant.ERR_PEGAWAI_NOTFOUND);
     return pegawai;
   }
 
+  /**
+   * CREATE PEGAWAI
+   */
   async createPegawai(dto: CreatePegawaiDto) {
     const [existingEmail, existingNip] = await Promise.all([
       this.repo.findUserByEmail(dto.email),
@@ -43,6 +55,9 @@ export class AdminService {
     return result.pegawai;
   }
 
+  /**
+   * UPDATE PEGAWAI
+   */
   async updatePegawai(id: number, dto: UpdatePegawaiDto) {
     const pegawai = await this.repo.findPegawaiById(id);
     if (!pegawai) throw new NotFoundException(AdminConstant.ERR_PEGAWAI_NOTFOUND);
@@ -60,18 +75,27 @@ export class AdminService {
     return this.repo.updatePegawai(id, dto);
   }
 
+  /**
+   * DELETE PEGAWAI
+   */
   async deletePegawai(id: number) {
     const pegawai = await this.repo.findPegawaiById(id);
     if (!pegawai) throw new NotFoundException(AdminConstant.ERR_PEGAWAI_NOTFOUND);
     await this.repo.deletePegawai(pegawai.user.id);
   }
 
+  /**
+   * GET SHIFT PEGAWAI
+   */
   async getShiftPegawai(pegawaiId: number) {
     const pegawai = await this.repo.findPegawaiById(pegawaiId);
     if (!pegawai) throw new NotFoundException(AdminConstant.ERR_PEGAWAI_NOTFOUND);
     return this.repo.findShiftPegawai(pegawaiId);
   }
 
+  /**
+   * ASSIGN SHIFT PEGAWAI
+   */
   async assignShiftPegawai(pegawaiId: number, dto: AssignShiftPegawaiDto) {
     const berlakuDari = new Date(dto.berlaku_dari);
     const berlakuSampai = dto.berlaku_sampai ? new Date(dto.berlaku_sampai) : undefined;
@@ -98,6 +122,9 @@ export class AdminService {
     return this.repo.createShiftPegawai(pegawaiId, dto.shift_id, berlakuDari, berlakuSampai);
   }
 
+  /**
+   * GET RIWAYAT PRESENSI
+   */
   async getRiwayatPresensi(dto: GetRiwayatPresensiDto) {
     const tanggalMulai = dto.tanggal_mulai ? new Date(dto.tanggal_mulai) : undefined;
     const tanggalSelesai = dto.tanggal_selesai ? new Date(dto.tanggal_selesai) : undefined;
@@ -111,5 +138,19 @@ export class AdminService {
     ]);
 
     return { data, pagination: { page, limit, total_data, total_page: Math.ceil(total_data / limit) } };
+  }
+
+  /**
+   * ASSIGN KANTOR PEGAWAI
+   */
+  async assignKantorPegawai(id: number, dto: AssignKantorPegawaiDto) {
+    const [pegawai, kantor] = await Promise.all([
+      this.repo.findPegawaiById(id),
+      this.kantorRepo.findKantorById(dto.kantor_id),
+    ]);
+    if (!pegawai) throw new NotFoundException(AdminConstant.ERR_PEGAWAI_NOTFOUND);
+    if (!kantor) throw new NotFoundException(AdminConstant.ERR_KANTOR_NOTFOUND);
+
+    return this.repo.assignKantorPegawai(pegawai.id, kantor.id);
   }
 }

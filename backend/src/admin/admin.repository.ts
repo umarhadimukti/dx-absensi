@@ -231,4 +231,33 @@ export class AdminRepository {
       },
     });
   }
+
+  assignKantorPegawai(pegawaiId: number, kantorId: number) {
+    return this.prisma.db.$transaction(async (tx) => {
+      const activeKantor = await this.prisma.db.dexa_pegawai_kantor.findFirst({
+        where: { pegawai_id: pegawaiId, is_aktif: true },
+        orderBy: { updated_at: 'desc' },
+      });
+      if (activeKantor) {
+        await this.prisma.db.dexa_pegawai_kantor.update({
+          where: { id: activeKantor.id },
+          data: { is_aktif: false, updated_at: new Date() },
+        });
+      }
+      return this.prisma.db.dexa_pegawai_kantor.create({
+        data: { pegawai_id: pegawaiId, kantor_id: kantorId },
+        select: {
+          id: true,
+          pegawai: {
+            select: { id: true, nip: true, nama: true },
+          },
+          kantor: {
+            select: { id: true, nama: true, alamat: true },
+          },
+          created_at: true,
+        },
+      });
+    });
+  }
+
 }

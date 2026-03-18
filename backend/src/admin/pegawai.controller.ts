@@ -18,6 +18,7 @@ import { AssignShiftPegawaiDto } from './dto/assign-shift-pegawai.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'generated/prisma/enums';
 import { GetRiwayatPresensiDto } from './dto/get-riwayat-presensi.dto';
+import { AssignKantorPegawaiDto } from './dto/assign-kantor-pegawai.dto';
 
 @Roles(Role.ADMIN)
 @Controller('pegawai')
@@ -72,5 +73,11 @@ export class PegawaiController {
   @Roles(Role.ADMIN, Role.HR)
   assignShiftPegawai(@Param('id', ParseIntPipe) id: number, @Body() dto: AssignShiftPegawaiDto) {
     return this.adminService.assignShiftPegawai(id, dto);
+  }
+
+  @Post(':id/assign-kantor')
+  @Roles(Role.ADMIN, Role.HR)
+  assignKantorPegawai(@Param('id', ParseIntPipe) id: number, @Body() dto: AssignKantorPegawaiDto) {
+    return this.adminService.assignKantorPegawai(id, dto);
   }
 }
